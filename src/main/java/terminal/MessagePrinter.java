@@ -5,38 +5,38 @@ package terminal;
  */
 public class MessagePrinter {
 
-    private static void printMessage(String message){
+    private void printMessage(String message){
         System.out.println(message);
     }
 
-    public static void printBalance(int balance) {
+    public void printBalance(int balance) {
         System.out.println("Current balance is " + balance);
     }
 
-    public static void printNoConnectionMessage(){
+    public void printNoConnectionMessage(){
         printMessage("No connection");
     }
 
-    public static void printNoFunsMessage(){
+    public void printNoFunsMessage(){
         System.out.println("No funs");
     }
 
-    public static void printInvalidPinMessage(){
+    public void printInvalidPinMessage(){
         System.out.println("Inavalid pin");
     }
 
-    public static void printCardIsLockedMessage(){
+    public void printCardIsLockedMessage(){
         System.out.println("Card is locked");
     }
 
-    public static void printSumMustBeDevisibleBy100(){
+    public void printSumMustBeDevisibleBy100(){
         System.out.println("Sum must be multiple by 100");
     }
 
-    public static void printInvalidPinMessage3Times(){
+    public void printInvalidPinMessage3Times(){
         System.out.println("You entered the password 3 times incorrectly, your card is locked for 5 seconds.");
     }
-    public static void ptintBlockTimeDidNotComeOut(){
+    public void printBlockTimeDidNotComeOut(){
         System.out.println("The blocking time didn't come out");
     }
 

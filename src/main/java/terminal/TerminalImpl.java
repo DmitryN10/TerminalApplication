@@ -11,26 +11,29 @@ import terminalServer.TerminalServer;
  */
 public class TerminalImpl implements Terminal {
     int failedAttempts = 0;
-    double lastBlockTime;
+    long lastBlockTime;
 
 
     private final TerminalServer server;
     private final PinValidator pinValidator;
+    //for Tests
+    private final MessagePrinter messagePrinter;
 
-    public TerminalImpl(TerminalServer server, PinValidator pinValidator) {
+    public TerminalImpl(TerminalServer server, PinValidator pinValidator, MessagePrinter messagePrinter) {
         this.server = server;
         this.pinValidator = pinValidator;
+        this.messagePrinter = messagePrinter;
     }
 
     @Override
     public void toCheckCurrentBalance() {
         if (this.operationIaAllowed()) {
             try {
-                MessagePrinter.printBalance(this.server.toCheckCurrentBalance());
+                messagePrinter.printBalance(this.server.toCheckCurrentBalance());
             } catch (NoConnection e) {
-                MessagePrinter.printNoConnectionMessage();
+                messagePrinter.printNoConnectionMessage();
             } catch (InvalidPinException e) {
-                MessagePrinter.printInvalidPinMessage();
+                messagePrinter.printInvalidPinMessage();
             }
         }
     }
@@ -39,17 +42,17 @@ public class TerminalImpl implements Terminal {
     public void toWithdrawCash(int money) {
         if (this.operationIaAllowed()) {
             if (money % 100 != 0) {
-                MessagePrinter.printSumMustBeDevisibleBy100();
+                messagePrinter.printSumMustBeDevisibleBy100();
             } else {
                 try {
                     this.server.toWithdrawCash();
                 } catch (NoConnection e) {
-                    MessagePrinter.printNoConnectionMessage();
+                    messagePrinter.printNoConnectionMessage();
                 } catch (NoFunsException e) {
-                    MessagePrinter.printNoFunsMessage();
+                    messagePrinter.printNoFunsMessage();
                 } catch (InvalidPinException e) {
                     System.out.println(e);
-                    MessagePrinter.printInvalidPinMessage();
+                    messagePrinter.printInvalidPinMessage();
                 }
             }
         }
@@ -57,23 +60,26 @@ public class TerminalImpl implements Terminal {
 
 
 
-    private boolean operationIaAllowed(){
-        if (System.currentTimeMillis() - lastBlockTime < 5000)  {
-            System.out.println("Время не прошло");
+    private boolean operationIaAllowed() {
+        if (System.currentTimeMillis() - lastBlockTime < 5000) {
+            messagePrinter.printBlockTimeDidNotComeOut();
             return false;
-        }
-        if (!this.pinValidator.validatePin()) {
-            if (failedAttempts < 2) {
-                failedAttempts++;
-                System.out.println("Введен неверный пароль");
-            } else {
-                System.out.println("Введен неправильный пароль,  вы заблокированы на 5 сек");
-                failedAttempts = 0;
-                lastBlockTime = System.currentTimeMillis();
+        } else {
+            if (!this.pinValidator.validatePin()) {
+                if (failedAttempts < 2) {
+                    failedAttempts++;
+                    messagePrinter.printInvalidPinMessage();
+                } else {
+                    if (failedAttempts == 2) {
+                        messagePrinter.printInvalidPinMessage3Times();
+                        failedAttempts = 0;
+                        lastBlockTime = System.currentTimeMillis();
+                    }
+                }
+                return false;
             }
-            return false;
-        }
-        return true;
+            return true;
 
+        }
     }
 }
